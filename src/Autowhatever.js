@@ -6,9 +6,16 @@ import SectionTitle from './SectionTitle';
 import ItemList from './ItemList';
 
 const emptyObject = {};
-const defaultRenderInputComponent = (props) => <input {...props} />;
-const defaultRenderItemsContainer = ({ containerProps, children }) => (
-  <div {...containerProps}>{children}</div>
+const defaultRenderInputComponent = ({ innerRef, ...otherProps }) => (
+  <input {...otherProps} ref={innerRef} />
+);
+const defaultRenderItemsContainer = ({
+  containerProps: { innerRef, ...otherProps },
+  children,
+}) => (
+  <div {...otherProps} ref={innerRef}>
+    {children}
+  </div>
 );
 const defaultTheme = {
   container: 'react-autowhatever__container',
@@ -120,11 +127,11 @@ export default class Autowhatever extends Component {
   setSectionsItems(props) {
     if (props.multiSection) {
       this.sectionsItems = props.items.map((section) =>
-        props.getSectionItems(section)
+        props.getSectionItems(section),
       );
       this.sectionsLengths = this.sectionsItems.map((items) => items.length);
       this.allSectionsAreEmpty = this.sectionsLengths.every(
-        (itemsCount) => itemsCount === 0
+        (itemsCount) => itemsCount === 0,
       );
     }
   }
@@ -209,7 +216,7 @@ export default class Autowhatever extends Component {
           {...theme(
             `${sectionKeyPrefix}container`,
             'sectionContainer',
-            isFirstSection && 'sectionContainerFirst'
+            isFirstSection && 'sectionContainerFirst',
           )}
         >
           <SectionTitle
@@ -296,11 +303,8 @@ export default class Autowhatever extends Component {
   };
 
   onKeyDown = (event) => {
-    const {
-      inputProps,
-      highlightedSectionIndex,
-      highlightedItemIndex,
-    } = this.props;
+    const { inputProps, highlightedSectionIndex, highlightedItemIndex } =
+      this.props;
     const { keyCode } = event;
 
     switch (keyCode) {
@@ -308,13 +312,11 @@ export default class Autowhatever extends Component {
       case 38: {
         // ArrowUp
         const nextPrev = keyCode === 40 ? 'next' : 'prev';
-        const [
-          newHighlightedSectionIndex,
-          newHighlightedItemIndex,
-        ] = this.sectionIterator[nextPrev]([
-          highlightedSectionIndex,
-          highlightedItemIndex,
-        ]);
+        const [newHighlightedSectionIndex, newHighlightedItemIndex] =
+          this.sectionIterator[nextPrev]([
+            highlightedSectionIndex,
+            highlightedItemIndex,
+          ]);
 
         inputProps.onKeyDown(event, {
           newHighlightedSectionIndex,
@@ -382,7 +384,7 @@ export default class Autowhatever extends Component {
     const isOpen = renderedItems !== null;
     const ariaActivedescendant = this.getItemId(
       highlightedSectionIndex,
-      highlightedItemIndex
+      highlightedItemIndex,
     );
     const itemsContainerId = `react-autowhatever-${id}`;
     const containerProps = {
@@ -393,7 +395,7 @@ export default class Autowhatever extends Component {
       ...theme(
         `react-autowhatever-${id}-container`,
         'container',
-        isOpen && 'containerOpen'
+        isOpen && 'containerOpen',
       ),
       ...this.props.containerProps,
     };
@@ -408,24 +410,23 @@ export default class Autowhatever extends Component {
         `react-autowhatever-${id}-input`,
         'input',
         isOpen && 'inputOpen',
-        isInputFocused && 'inputFocused'
+        isInputFocused && 'inputFocused',
       ),
       ...this.props.inputProps,
       onFocus: this.onFocus,
       onBlur: this.onBlur,
       onKeyDown: this.props.inputProps.onKeyDown && this.onKeyDown,
-      ref: this.storeInputReference,
+      innerRef: this.storeInputReference,
     });
     const itemsContainer = renderItemsContainer({
       containerProps: {
         id: itemsContainerId,
-        role: 'listbox',
         ...theme(
           `react-autowhatever-${id}-items-container`,
           'itemsContainer',
-          isOpen && 'itemsContainerOpen'
+          isOpen && 'itemsContainerOpen',
         ),
-        ref: this.storeItemsContainerReference,
+        innerRef: this.storeItemsContainerReference,
       },
       children: renderedItems,
     });

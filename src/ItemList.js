@@ -27,7 +27,7 @@ export default class ItemsList extends Component {
 
   storeHighlightedItemReference = (highlightedItem) => {
     this.props.onHighlightedItemChange(
-      highlightedItem === null ? null : highlightedItem.item
+      highlightedItem === null ? null : highlightedItem.item,
     );
   };
 
@@ -65,7 +65,7 @@ export default class ItemsList extends Component {
               itemKey,
               'item',
               isFirst && 'itemFirst',
-              isHighlighted && 'itemHighlighted'
+              isHighlighted && 'itemHighlighted',
             ),
             ...itemPropsObj,
           };
