@@ -6,16 +6,9 @@ import SectionTitle from './SectionTitle';
 import ItemList from './ItemList';
 
 const emptyObject = {};
-const defaultRenderInputComponent = ({ innerRef, ...otherProps }) => (
-  <input {...otherProps} ref={innerRef} />
-);
-const defaultRenderItemsContainer = ({
-  containerProps: { innerRef, ...otherProps },
-  children,
-}) => (
-  <div {...otherProps} ref={innerRef}>
-    {children}
-  </div>
+const defaultRenderInputComponent = (props) => <input {...props} />;
+const defaultRenderItemsContainer = ({ containerProps, children }) => (
+  <div {...containerProps}>{children}</div>
 );
 const defaultTheme = {
   container: 'react-autowhatever__container',
@@ -36,29 +29,21 @@ const defaultTheme = {
 
 export default class Autowhatever extends Component {
   static propTypes = {
-    id: PropTypes.string, // Used in aria-* attributes. If multiple Autowhatever's are rendered on a page, they must have unique ids.
-    multiSection: PropTypes.bool, // Indicates whether a multi section layout should be rendered.
-    renderInputComponent: PropTypes.func, // When specified, it is used to render the input element.
-    renderItemsContainer: PropTypes.func, // Renders the items container.
-    items: PropTypes.array.isRequired, // Array of items or sections to render.
-    renderItem: PropTypes.func, // This function renders a single item.
-    renderItemData: PropTypes.object, // Arbitrary data that will be passed to renderItem()
-    renderSectionTitle: PropTypes.func, // This function gets a section and renders its title.
-    getSectionItems: PropTypes.func, // This function gets a section and returns its items, which will be passed into `renderItem` for rendering.
-    containerProps: PropTypes.object, // Arbitrary container props
-    inputProps: PropTypes.object, // Arbitrary input props
-    itemProps: PropTypes.oneOfType([
-      // Arbitrary item props
-      PropTypes.object,
-      PropTypes.func,
-    ]),
-    highlightedSectionIndex: PropTypes.number, // Section index of the highlighted item
-    highlightedItemIndex: PropTypes.number, // Highlighted item index (within a section)
-    theme: PropTypes.oneOfType([
-      // Styles. See: https://github.com/markdalgleish/react-themeable
-      PropTypes.object,
-      PropTypes.array,
-    ]),
+    id: PropTypes.string,
+    multiSection: PropTypes.bool,
+    renderInputComponent: PropTypes.func,
+    renderItemsContainer: PropTypes.func,
+    items: PropTypes.array.isRequired,
+    renderItem: PropTypes.func,
+    renderItemData: PropTypes.object,
+    renderSectionTitle: PropTypes.func,
+    getSectionItems: PropTypes.func,
+    containerProps: PropTypes.object,
+    inputProps: PropTypes.object,
+    itemProps: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    highlightedSectionIndex: PropTypes.number,
+    highlightedItemIndex: PropTypes.number,
+    theme: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   };
 
   static defaultProps = {
@@ -102,25 +87,22 @@ export default class Autowhatever extends Component {
     this.ensureHighlightedItemIsVisible();
   }
 
-  // eslint-disable-next-line camelcase, react/sort-comp
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.items !== this.props.items) {
-      this.setSectionsItems(nextProps);
+  componentDidUpdate(prevProps) {
+    if (prevProps.items !== this.props.items) {
+      this.setSectionsItems(this.props);
     }
 
     if (
-      nextProps.items !== this.props.items ||
-      nextProps.multiSection !== this.props.multiSection
+      prevProps.items !== this.props.items ||
+      prevProps.multiSection !== this.props.multiSection
     ) {
-      this.setSectionIterator(nextProps);
+      this.setSectionIterator(this.props);
     }
 
-    if (nextProps.theme !== this.props.theme) {
-      this.setTheme(nextProps);
+    if (prevProps.theme !== this.props.theme) {
+      this.setTheme(this.props);
     }
-  }
 
-  componentDidUpdate() {
     this.ensureHighlightedItemIsVisible();
   }
 
@@ -209,10 +191,9 @@ export default class Autowhatever extends Component {
       const sectionKeyPrefix = `${keyPrefix}section-${sectionIndex}-`;
       const isFirstSection = sectionIndex === 0;
 
-      // `key` is provided by theme()
-      /* eslint-disable react/jsx-key */
       return (
         <div
+          key={sectionKeyPrefix + 'div'}
           {...theme(
             `${sectionKeyPrefix}container`,
             'sectionContainer',
@@ -240,11 +221,10 @@ export default class Autowhatever extends Component {
             getItemId={this.getItemId}
             theme={theme}
             keyPrefix={keyPrefix}
-            ref={this.storeItemsListReference}
+            ref={this.storeItemsContainerReference}
           />
         </div>
       );
-      /* eslint-enable react/jsx-key */
     });
   }
 
@@ -310,7 +290,6 @@ export default class Autowhatever extends Component {
     switch (keyCode) {
       case 40: // ArrowDown
       case 38: {
-        // ArrowUp
         const nextPrev = keyCode === 40 ? 'next' : 'prev';
         const [newHighlightedSectionIndex, newHighlightedItemIndex] =
           this.sectionIterator[nextPrev]([
@@ -416,7 +395,7 @@ export default class Autowhatever extends Component {
       onFocus: this.onFocus,
       onBlur: this.onBlur,
       onKeyDown: this.props.inputProps.onKeyDown && this.onKeyDown,
-      innerRef: this.storeInputReference,
+      ref: this.storeInputReference,
     });
     const itemsContainer = renderItemsContainer({
       containerProps: {
@@ -426,7 +405,7 @@ export default class Autowhatever extends Component {
           'itemsContainer',
           isOpen && 'itemsContainerOpen',
         ),
-        innerRef: this.storeItemsContainerReference,
+        ref: this.storeItemsContainerReference,
       },
       children: renderedItems,
     });

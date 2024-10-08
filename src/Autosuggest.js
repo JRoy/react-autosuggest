@@ -6,13 +6,8 @@ import { defaultTheme, mapToAutowhateverTheme } from './theme';
 
 const alwaysTrue = () => true;
 const defaultShouldRenderSuggestions = (value) => value.trim().length > 0;
-const defaultRenderSuggestionsContainer = ({
-  containerProps: { innerRef, ...otherProps },
-  children,
-}) => (
-  <div {...otherProps} ref={innerRef}>
-    {children}
-  </div>
+const defaultRenderSuggestionsContainer = ({ containerProps, children }) => (
+  <div {...containerProps}>{children}</div>
 );
 
 const REASON_SUGGESTIONS_REVEALED = 'suggestions-revealed';
@@ -494,7 +489,7 @@ export default class Autosuggest extends Component {
     }
 
     if (focusInputOnSuggestionClick === true) {
-      this.getInput.focus();
+      this.getInput().focus();
     } else {
       this.onBlur();
     }
@@ -541,7 +536,7 @@ export default class Autosuggest extends Component {
   onSuggestionTouchMove = () => {
     this.setState({ justSelectedSuggestion: false });
     this.pressedSuggestion = null;
-    this.getInput.focus();
+    this.getInput().focus();
   };
 
   itemProps = ({ sectionIndex, itemIndex }) => {
@@ -640,7 +635,7 @@ export default class Autosuggest extends Component {
       },
       onBlur: (event) => {
         if (this.justClickedOnSuggestionsContainer) {
-          this.getInput.focus();
+          this.getInput().focus();
           return;
         }
 
