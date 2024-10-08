@@ -5,7 +5,7 @@ module.exports = {
     browser: true,
     mocha: true,
   },
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   plugins: ['react'],
   extends: ['eslint:recommended'],
   rules: {
